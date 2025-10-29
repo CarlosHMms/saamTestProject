@@ -1,0 +1,31 @@
+services:
+  api:
+    image: eclipse-temurin:25-jdk-alpine
+    container_name: saamApi
+    volumes:
+      -
+    command: [ "java", "-jar", "/app/.jar"]
+    ports:
+      - "8080:8080"
+    expose:
+      - '8080'
+    environment:
+      - DB_URL=jdbc:mysql://db:3306/
+    depends_on:
+      - db
+
+  db:
+    image: mysql
+    container_name: saamDatabase
+    environment:
+      - MYSQL_DATABASE=saamTest
+      - MYSQL_USER=saamUser
+      - MYSQL_PASSWORD=secret
+      - MYSQL_ROOT_PASSWORD=verysecret
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+
+  front-end:
+    image: nginx
