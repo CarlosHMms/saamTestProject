@@ -8,9 +8,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,7 +25,7 @@ public class UserResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserResponseDTO>> listAllUsers() {
+    public ResponseEntity<List<UserResponseDTO>> listAllUsers(@AuthenticationPrincipal Jwt principal) {
         List<UserResponseDTO> users = userService.listAllUsers().stream()
                 .map(UserResponseDTO::fromEntity)
                 .toList();
@@ -42,5 +40,16 @@ public class UserResource {
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
 
         return ResponseEntity.ok(UserResponseDTO.fromEntity(user));
+    }
+
+    @DeleteMapping("/{username}")
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable String username,
+            @AuthenticationPrincipal Jwt principal) {
+
+        Long authenticatedUserId = Long.parseLong(principal.getSubject());
+        userService.deleteUserAccount(username, authenticatedUserId);
+
+        return ResponseEntity.noContent().build();
     }
 }
