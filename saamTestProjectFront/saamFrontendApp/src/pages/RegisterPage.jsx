@@ -14,7 +14,7 @@ import { authService } from "../services/authService";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
-    fullName: "",
+    name: "",
     username: "",
     password: "",
     confirmPassword: "",
@@ -41,7 +41,7 @@ export default function RegisterPage() {
 
     try {
       await authService.register({
-        fullName: formData.fullName,
+        name: formData.name,
         username: formData.username,
         password: formData.password,
       });
@@ -96,12 +96,12 @@ export default function RegisterPage() {
               margin="normal"
               required
               fullWidth
-              id="fullName"
+              id="name"
               label="Nome Completo"
-              name="fullName"
+              name="name"
               autoComplete="name"
               autoFocus
-              value={formData.fullName}
+              value={formData.name}
               onChange={handleChange}
             />
 
