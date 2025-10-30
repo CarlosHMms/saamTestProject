@@ -8,6 +8,7 @@ import com.saamaudit.saamTestProject.repositories.UserRepository;
 import com.saamaudit.saamTestProject.resources.dto.ProductRequestDTO;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,7 +74,7 @@ public class ProductService {
 
     private void validateOwnership(Product product, Long userId) {
         if (!Objects.equals(product.getUser().getUserId(), userId)) {
-            throw new AccessDeniedException("Acesso negado: Você não é o proprietário deste produto.");
+            throw new BadCredentialsException("Acesso negado: Você não é o proprietário deste produto.");
         }
     }
 }

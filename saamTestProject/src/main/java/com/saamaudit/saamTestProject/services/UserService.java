@@ -64,7 +64,7 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("Usuário '" + usernameToDelete + "' não encontrado."));
 
         if (!Objects.equals(userToDelete.getUserId(), authenticatedUserId)) {
-            throw new AccessDeniedException("Acesso negado. Você só pode deletar sua própria conta.");
+            throw new BadCredentialsException("Acesso negado. Você só pode deletar sua própria conta.");
         }
 
         productRepository.deleteByUser(userToDelete);
