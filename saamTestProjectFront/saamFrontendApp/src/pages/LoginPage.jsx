@@ -124,6 +124,22 @@ export default function LoginPage() {
             >
               Entrar
             </Button>
+
+            <Box sx={{ mt: 2, textAlign: "center" }}>
+              <Link
+                href="/register"
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  textDecoration: "none",
+                  "&:hover": {
+                    color: "primary.main",
+                  },
+                }}
+              >
+                Não tem uma conta? Cadastre-se
+              </Link>
+            </Box>
           </Box>
         </Paper>
       </Box>
