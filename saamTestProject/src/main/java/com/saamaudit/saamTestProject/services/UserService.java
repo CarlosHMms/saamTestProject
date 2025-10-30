@@ -1,6 +1,7 @@
 package com.saamaudit.saamTestProject.services;
 
 import com.saamaudit.saamTestProject.entities.User;
+import com.saamaudit.saamTestProject.exceptions.NotFoundException;
 import com.saamaudit.saamTestProject.repositories.ProductRepository;
 import com.saamaudit.saamTestProject.repositories.UserRepository;
 import com.saamaudit.saamTestProject.resources.dto.RegisterRequestDTO;
@@ -15,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -61,7 +61,7 @@ public class UserService {
     @Transactional(rollbackFor = {EntityNotFoundException.class, AccessDeniedException.class})
     public void deleteUserAccount(String usernameToDelete, Long authenticatedUserId) {
         User userToDelete = userRepository.findByUsername(usernameToDelete)
-                .orElseThrow(() -> new EntityNotFoundException("Usuário '" + usernameToDelete + "' não encontrado."));
+                .orElseThrow(() -> new NotFoundException("Usuário '" + usernameToDelete + "' não encontrado."));
 
         if (!Objects.equals(userToDelete.getUserId(), authenticatedUserId)) {
             throw new AccessDeniedException("Acesso negado. Você só pode deletar sua própria conta.");
