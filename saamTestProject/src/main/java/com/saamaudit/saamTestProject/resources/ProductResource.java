@@ -31,7 +31,7 @@ public class ProductResource {
 
         Long userId = Long.parseLong(principal.getSubject());
 
-        Product newProduct = productService.createProduct(requestDTO, userId);
+        Product newProduct = productService.insert(requestDTO, userId);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -52,7 +52,7 @@ public class ProductResource {
 
     @GetMapping("/{productId}")
     public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable Long productId) {
-        Product product = productService.getProductById(productId);
+        Product product = productService.listProductById(productId);
         return ResponseEntity.ok(ProductResponseDTO.fromEntity(product));
     }
 
