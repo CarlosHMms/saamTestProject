@@ -2,6 +2,7 @@ package com.saamaudit.saamTestProject.services;
 
 import com.saamaudit.saamTestProject.entities.Product;
 import com.saamaudit.saamTestProject.entities.User;
+import com.saamaudit.saamTestProject.exceptions.NotFoundException;
 import com.saamaudit.saamTestProject.repositories.ProductRepository;
 import com.saamaudit.saamTestProject.repositories.UserRepository;
 import com.saamaudit.saamTestProject.resources.dto.ProductRequestDTO;
@@ -44,7 +45,7 @@ public class ProductService {
 
     public Product listProductById(Long productId) {
         return productRepository.findById(productId)
-                .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado com ID: " + productId));
+                .orElseThrow(() -> new NotFoundException("Produto não encontrado com ID: " + productId));
     }
 
     @Transactional(rollbackFor = {AccessDeniedException.class})
