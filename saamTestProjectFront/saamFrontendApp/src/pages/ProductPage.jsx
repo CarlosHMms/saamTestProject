@@ -31,6 +31,8 @@ export default function ProductPage() {
   });
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -55,6 +57,11 @@ export default function ProductPage() {
     }));
   };
 
+  const showTemporaryMessage = (setMessage, message) => {
+    setMessage(message);
+    setTimeout(() => setMessage(""), 1500);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -68,7 +75,7 @@ export default function ProductPage() {
       };
 
       await productService.createProduct(productData);
-      setSuccess("Produto cadastrado com sucesso!");
+      showTemporaryMessage(setSuccess, "Produto cadastrado com sucesso!");
       setFormData({
         name: "",
         description: "",
@@ -77,7 +84,10 @@ export default function ProductPage() {
       });
       loadProducts();
     } catch (err) {
-      setError(err.response?.data?.message || "Erro ao cadastrar produto");
+      showTemporaryMessage(
+        setError,
+        err.response?.data?.message || "Erro ao cadastrar produto"
+      );
     }
   };
 
@@ -92,15 +102,23 @@ export default function ProductPage() {
     setEditModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Tem certeza que deseja excluir este produto?")) {
-      try {
-        await productService.deleteProduct(id);
-        setSuccess("Produto excluído com sucesso!");
-        loadProducts();
-      } catch (err) {
-        setError(err.response?.data?.message || "Erro ao excluir produto");
-      }
+  const handleDelete = (product) => {
+    setProductToDelete(product);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await productService.deleteProduct(productToDelete.productId);
+      showTemporaryMessage(setSuccess, "Produto excluído com sucesso!");
+      setDeleteDialogOpen(false);
+      setProductToDelete(null);
+      loadProducts();
+    } catch (err) {
+      showTemporaryMessage(
+        setError,
+        err.response?.data?.message || "Erro ao excluir produto"
+      );
     }
   };
 
@@ -117,7 +135,7 @@ export default function ProductPage() {
       };
 
       await productService.updateProduct(editingProduct.productId, productData);
-      setSuccess("Produto atualizado com sucesso!");
+      showTemporaryMessage(setSuccess, "Produto atualizado com sucesso!");
       setEditModalOpen(false);
       setEditingProduct(null);
       setFormData({
@@ -128,7 +146,10 @@ export default function ProductPage() {
       });
       loadProducts();
     } catch (err) {
-      setError(err.response?.data?.message || "Erro ao atualizar produto");
+      showTemporaryMessage(
+        setError,
+        err.response?.data?.message || "Erro ao atualizar produto"
+      );
     }
   };
 
@@ -305,7 +326,7 @@ export default function ProductPage() {
                         size="small"
                         variant="contained"
                         color="error"
-                        onClick={() => handleDelete(product.productId)}
+                        onClick={() => handleDelete(product)}
                       >
                         Excluir
                       </Button>
@@ -398,6 +419,30 @@ export default function ProductPage() {
               }}
             >
               Atualizar
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
+          open={deleteDialogOpen}
+          onClose={() => setDeleteDialogOpen(false)}
+        >
+          <DialogTitle>Confirmar Exclusão</DialogTitle>
+          <DialogContent>
+            <Typography>
+              Tem certeza que deseja excluir o produto "{productToDelete?.name}
+              "?
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => setDeleteDialogOpen(false)}
+              variant="outlined"
+            >
+              Cancelar
+            </Button>
+            <Button onClick={confirmDelete} variant="contained" color="error">
+              Excluir
             </Button>
           </DialogActions>
         </Dialog>
