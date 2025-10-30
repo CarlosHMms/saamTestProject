@@ -7,6 +7,7 @@ import {
 import { CssBaseline } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 import ProductPage from "./pages/ProductPage";
 import { authService } from "./services/authService";
 import { theme } from "./theme/theme";
@@ -23,6 +24,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
           <Route
             path="/products"
             element={
