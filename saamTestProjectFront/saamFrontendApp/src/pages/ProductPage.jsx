@@ -13,6 +13,10 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import { productService } from "../services/productService";
 import { CurrencyInput } from "../components/CurrencyInput";
@@ -25,6 +29,8 @@ export default function ProductPage() {
     price: "",
     quantity: "",
   });
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -72,6 +78,57 @@ export default function ProductPage() {
       loadProducts();
     } catch (err) {
       setError(err.response?.data?.message || "Erro ao cadastrar produto");
+    }
+  };
+
+  const handleEdit = (product) => {
+    setEditingProduct(product);
+    setFormData({
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      quantity: product.quantity,
+    });
+    setEditModalOpen(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Tem certeza que deseja excluir este produto?")) {
+      try {
+        await productService.deleteProduct(id);
+        setSuccess("Produto excluído com sucesso!");
+        loadProducts();
+      } catch (err) {
+        setError(err.response?.data?.message || "Erro ao excluir produto");
+      }
+    }
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+
+    try {
+      const productData = {
+        ...formData,
+        price: Number(formData.price),
+        quantity: Number(formData.quantity),
+      };
+
+      await productService.updateProduct(editingProduct.productId, productData);
+      setSuccess("Produto atualizado com sucesso!");
+      setEditModalOpen(false);
+      setEditingProduct(null);
+      setFormData({
+        name: "",
+        description: "",
+        price: "",
+        quantity: "",
+      });
+      loadProducts();
+    } catch (err) {
+      setError(err.response?.data?.message || "Erro ao atualizar produto");
     }
   };
 
@@ -209,25 +266,141 @@ export default function ProductPage() {
                 <TableCell>Descrição</TableCell>
                 <TableCell align="right">Preço</TableCell>
                 <TableCell align="right">Quantidade</TableCell>
+                <TableCell>Criado por</TableCell>
+                <TableCell>Data</TableCell>
+                <TableCell align="center">Ações</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {products.map((product) => (
-                <TableRow key={product.id}>
+                <TableRow key={product.productId}>
                   <TableCell>{product.name}</TableCell>
                   <TableCell>{product.description}</TableCell>
                   <TableCell align="right">
-                    {product.price.toLocaleString("pt-BR", {
+                    {Number(product.price).toLocaleString("pt-BR", {
                       style: "currency",
                       currency: "BRL",
                     })}
                   </TableCell>
                   <TableCell align="right">{product.quantity}</TableCell>
+                  <TableCell>{product.ownerUsername}</TableCell>
+                  <TableCell>
+                    {new Date(product.creationTimeStamp).toLocaleDateString(
+                      "pt-BR"
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    <Box
+                      sx={{ display: "flex", gap: 1, justifyContent: "center" }}
+                    >
+                      <Button
+                        size="small"
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleEdit(product)}
+                      >
+                        Editar
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="contained"
+                        color="error"
+                        onClick={() => handleDelete(product.productId)}
+                      >
+                        Excluir
+                      </Button>
+                    </Box>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
+
+        <Dialog
+          open={editModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle
+            sx={{
+              background: "linear-gradient(45deg, #7C3AED 30%, #06B6D4 90%)",
+              backgroundClip: "text",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            Editar Produto
+          </DialogTitle>
+          <DialogContent>
+            <Box component="form" onSubmit={handleUpdate} sx={{ mt: 2 }}>
+              {error && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {error}
+                </Alert>
+              )}
+              {success && (
+                <Alert severity="success" sx={{ mb: 2 }}>
+                  {success}
+                </Alert>
+              )}
+
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                label="Nome"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                label="Descrição"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+              />
+              <CurrencyInput
+                required
+                fullWidth
+                label="Preço"
+                name="price"
+                value={formData.price}
+                onChange={handleChange}
+                sx={{ mt: 2 }}
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                label="Quantidade"
+                name="quantity"
+                type="number"
+                value={formData.quantity}
+                onChange={handleChange}
+                inputProps={{ min: 0 }}
+              />
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 3 }}>
+            <Button onClick={() => setEditModalOpen(false)} variant="outlined">
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleUpdate}
+              variant="contained"
+              sx={{
+                background: "linear-gradient(45deg, #7C3AED 30%, #06B6D4 90%)",
+              }}
+            >
+              Atualizar
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </Container>
   );
