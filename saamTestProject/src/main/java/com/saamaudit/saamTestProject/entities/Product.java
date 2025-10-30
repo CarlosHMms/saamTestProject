@@ -72,10 +72,6 @@ public class Product {
         return creationTimeStamp;
     }
 
-    public void setCreationTimeStamp(Instant creationTimeStamp) {
-        this.creationTimeStamp = creationTimeStamp;
-    }
-
     public Long getProductId() {
         return productId;
     }
